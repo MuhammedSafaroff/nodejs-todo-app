@@ -1,8 +1,15 @@
 const express = require('express');
 const app = express();
-var mysql = require('./connection_sql');
+const mysql = require('./connection_sql');
 
 
+
+
+app.use(express.json());
+
+app.use(express.urlencoded({
+      extended: true
+}));
 
 app.get('/todos', (req, res) => {
       var select_id = "SELECT * FROM todos";
@@ -42,11 +49,12 @@ app.get('/todos/:id', (req, res) => {
       });
 });
 
-app.post('/todos/:data', (req, res) => {
-      var insert = "INSERT INTO todos (text,date) values ?";
+app.post('/todos', (req, res) => {
+      let td = req.body;
+      var insert = "INSERT INTO todos (text, date) values (?, ?) ";
       var date = new Date();
-      var value = [[req.params.data, date.toISOString().split('T')[0]]];
-      mysql.query(insert, [value], (err) => {
+      let value = [td.text, date.toISOString().split('T')[0]];
+      mysql.query(insert, value, (err) => {
             if (err) {
                   res.status(404).json({
                         message: err
